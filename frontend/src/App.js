@@ -6,7 +6,7 @@ function validateEmail(email) {
   const regex = /^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/;
   return regex.test(email);
 }
-
+ 
 function App() {
   const [emails, setEmails] = useState([]);
   const [validEmails, setValidEmails] = useState([]);
@@ -30,7 +30,7 @@ function App() {
     setInvalidEmails(invalid);
     try {
       // Send data to the backend
-      const res = await axios.post("http://localhost:5000/send-emails", {
+      const res = await axios.post("https://bulk-email-backend-dx5l.onrender.com/send-emails", {
         valid,
         subject,
         body: body,

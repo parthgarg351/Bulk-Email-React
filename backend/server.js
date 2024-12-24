@@ -10,7 +10,7 @@ require('dotenv').config();
 const app = express();
 const PORT = 5000;
 const upload = multer(); 
-
+ 
 app.use(cors());
 app.use(express.json());
 console.log(process.env.EMAIL_USER);
