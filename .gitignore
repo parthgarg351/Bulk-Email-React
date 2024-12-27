@@ -4,3 +4,4 @@ backend/.env
 /frontend/node_modules
 frontend/public/robots.txt
 /frontend/build
+frontend/.env

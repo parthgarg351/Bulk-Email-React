@@ -7,7 +7,7 @@ function validateEmail(email) {
   const regex = /^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/;
   return regex.test(email);
 }
- 
+  
 function Body() {
   const [emails, setEmails] = useState([]);
   const [validEmails, setValidEmails] = useState([]);
