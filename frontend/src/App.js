@@ -2,6 +2,8 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import Login from './components/Login';
 import Body from './components/Body';
 import Home from './components/Home';
+import Terms from './components/Terms';
+import Privacy from './components/Privacy';
 
 function App() {
   const appRouter = createBrowserRouter([
@@ -16,6 +18,14 @@ function App() {
     {
       path: "/home",
       element:<Home/>
+    },
+    {
+      path: "/terms",
+      element:<Terms/>
+    },
+    {
+      path: "/privacy",
+      element:<Privacy/>
     }
   ])
 
