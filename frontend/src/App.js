@@ -1,9 +1,9 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import Login from './components/Login';
-import Body from './components/Body';
 import Home from './components/Home';
 import Terms from './components/Terms';
 import Privacy from './components/Privacy';
+import Unauthorized from './components/Unauthorized';
 
 function App() {
   const appRouter = createBrowserRouter([
@@ -11,10 +11,6 @@ function App() {
       path: "/",
       element : <Login/>
     },
-    // {
-    //   path: "/body",
-    //   element : <Body/>
-    // },
     {
       path: "/home",
       element:<Home/>
@@ -26,6 +22,10 @@ function App() {
     {
       path: "/privacy",
       element:<Privacy/>
+    },
+    {
+      path: "/unauthorized",
+      element:<Unauthorized/>
     }
   ])
 
