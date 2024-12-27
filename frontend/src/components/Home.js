@@ -2,6 +2,8 @@ import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { app } from '../utils/firebase';
+import Header from './Header';
+import Body from './Body';
 
 const Home = () => {
   
@@ -22,15 +24,13 @@ const Home = () => {
         };
     }, [user, setUser, navigate]);
 
-    function handleClick() {
-        const auth = getAuth(app);
-        auth.signOut();
-    }
     console.log(user);
     
     return (
-        <div>
-            <button onClick={handleClick}>Sign Out</button>
+        <div className='min-h-screen bg-gray-50'>
+            
+            <Header user={user} />
+            <Body/>
     </div>
   )
 }

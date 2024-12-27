@@ -11,10 +11,10 @@ function App() {
       path: "/",
       element : <Login/>
     },
-    {
-      path: "/body",
-      element : <Body/>
-    },
+    // {
+    //   path: "/body",
+    //   element : <Body/>
+    // },
     {
       path: "/home",
       element:<Home/>
