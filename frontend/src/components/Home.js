@@ -22,10 +22,10 @@ const Home = () => {
             // Get ID token to check custom claims
             const idTokenResult = await user.getIdTokenResult();
             console.log('User claims:', idTokenResult.claims);
-            // if (!idTokenResult.claims.authorized) {
-            //     navigate("/unauthorized");
-            //     return;
-            // }
+            if (!idTokenResult.claims.authorized) {
+                navigate("/unauthorized");
+                return;
+            }
             setUser(!!user);
             setLoading(false);
         });
@@ -41,7 +41,7 @@ const Home = () => {
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
         </div>;
     }
-    
+     
     return (
         <div className='min-h-screen bg-gray-50'>
             <Header user={user} />

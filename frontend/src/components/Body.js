@@ -31,7 +31,8 @@ const Body = () => {
     try {
       // Send data to the backend
       const res = await axios.post(
-        "https://bulk-email-backend-dx5l.onrender.com/send-emails",
+          // "https://bulk-email-backend-dx5l.onrender.com/send-emails",
+        "http://localhost:5000/send-emails",
         {
           valid,
           subject,

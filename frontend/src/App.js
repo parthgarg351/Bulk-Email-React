@@ -4,6 +4,8 @@ import Home from './components/Home';
 import Terms from './components/Terms';
 import Privacy from './components/Privacy';
 import Unauthorized from './components/Unauthorized';
+import AdminRoute from './components/AdminRoute';
+import AdminPanel from './components/AdminPanel';
 
 function App() {
   const appRouter = createBrowserRouter([
@@ -26,6 +28,10 @@ function App() {
     {
       path: "/unauthorized",
       element:<Unauthorized/>
+    },
+    {
+      path: "/admin",
+      element: <AdminRoute><AdminPanel /></AdminRoute>
     }
   ])
 

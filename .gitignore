@@ -5,3 +5,4 @@ backend/.env
 frontend/public/robots.txt
 /frontend/build
 frontend/.env
+backend/config/bulk-email-5c174-firebase-adminsdk-l7wjc-2abd0cd92d.json
