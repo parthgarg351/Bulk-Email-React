@@ -16,6 +16,16 @@ const AdminPanel = () => {
   useEffect(() => {
     fetchAuthorizedUsers();
   }, []);
+    
+  useEffect(() => {
+    if (message) {
+      const timer = setTimeout(() => {
+        setMessage('');
+      }, 7000);
+  
+      return () => clearTimeout(timer);
+    }
+  }, [message]);
 
   const fetchAuthorizedUsers = async () => {
     setIsRefreshing(true);
@@ -130,7 +140,7 @@ const AdminPanel = () => {
           </div>
           {message && (
             <div
-              className={`mt-4 p-4 rounded-md ${
+              className={`mt-4 p-4 mb-4 rounded-md ${
                 message.includes("Error")
                   ? "bg-red-100 text-red-700"
                   : "bg-green-100 text-green-700"
