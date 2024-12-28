@@ -26,9 +26,12 @@ const Header = () => {
     if (user) {
       const tokenResult = await user.getIdTokenResult(true);
       const newAdminStatus = !!tokenResult.claims.admin;
+      const isAuthorized = !!tokenResult.claims.authorized;
       setIsAdmin(newAdminStatus);
       
-      if (!newAdminStatus && location.pathname === '/admin') {
+      if (!isAuthorized) {
+        auth.signOut();
+      } else if (!newAdminStatus && location.pathname === '/admin') {
         navigate('/home', { replace: true });
       }
     }

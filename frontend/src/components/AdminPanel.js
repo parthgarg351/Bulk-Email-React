@@ -91,6 +91,20 @@ const AdminPanel = () => {
     }
   };
 
+  const revokeAccess = async (userEmail) => {
+    try {
+    //   await axios.post("http://localhost:5000/revoke-access", {
+      await axios.post("https://bulk-email-backend-dx5l.onrender.com/revoke-access", {
+        adminEmail: auth.currentUser.email,
+        userEmailToRevoke: userEmail,
+      });
+      setMessage("Access revoked successfully");
+      fetchAuthorizedUsers();
+    } catch (error) {
+      setMessage(error.response?.data?.error || "Error revoking access");
+    }
+  };
+
   return (
     <div>
       <Header />
@@ -159,16 +173,24 @@ const AdminPanel = () => {
                       </p>
                     </div>
                     {user.email !== "parthgarg351@gmail.com" && (
-                      <button
-                        onClick={() => toggleAdminStatus(user.email)}
-                        className={`px-4 py-2 rounded-md transition-colors ${
-                          user.isAdmin
-                            ? "bg-red-600 hover:bg-red-700"
-                            : "bg-green-600 hover:bg-green-700"
-                        } text-white`}
-                      >
-                        {user.isAdmin ? "Remove Admin" : "Make Admin"}
-                      </button>
+                      <div className="space-x-2">
+                        <button
+                          onClick={() => toggleAdminStatus(user.email)}
+                          className={`px-4 py-2 rounded-md transition-colors ${
+                            user.isAdmin
+                              ? "bg-red-600 hover:bg-red-700"
+                              : "bg-green-600 hover:bg-green-700"
+                          } text-white`}
+                        >
+                          {user.isAdmin ? "Remove Admin" : "Make Admin"}
+                        </button>
+                        <button
+                          onClick={() => revokeAccess(user.email)}
+                          className="px-4 py-2 rounded-md bg-red-600 hover:bg-red-700 text-white"
+                        >
+                          Revoke Access
+                        </button>
+                      </div>
                     )}
                   </div>
                 ))}

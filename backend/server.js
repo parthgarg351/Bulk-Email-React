@@ -167,6 +167,26 @@ app.post("/send-emails", async (req, res) => {
   //res.json({ processedData }); // Send back to frontend
 });
 
+app.post("/revoke-access", async (req, res) => {
+  const { adminEmail, userEmailToRevoke } = req.body;
+  
+  try {
+    const adminUser = await admin.auth().getUserByEmail(adminEmail);
+    const adminClaims = (await admin.auth().getUser(adminUser.uid)).customClaims;
+    
+    if (!adminClaims?.admin) {
+      return res.status(403).json({ error: "Not authorized as admin" });
+    }
+
+    const userToRevoke = await admin.auth().getUserByEmail(userEmailToRevoke);
+    await admin.auth().setCustomUserClaims(userToRevoke.uid, null);
+    
+    res.json({ message: "Access revoked successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Add this endpoint after your existing routes
 app.post("/setup-admin", async (req, res) => {
   const uid = "F95tLXwOIXVhLvpWrSRFTe4y3QX2"; // Replace with your Firebase user UID
