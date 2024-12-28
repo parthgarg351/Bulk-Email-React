@@ -25,7 +25,8 @@ const AdminPanel = () => {
     //   console.log("Sending request with data:", requestBody);
 
       try {
-        const response = await axios.post('http://localhost:5000/grant-access', requestBody, {
+        // const response = await axios.post('http://localhost:5000/grant-access', requestBody, {
+        const response = await axios.post('https://bulk-email-backend-dx5l.onrender.com/grant-access', requestBody, {
             headers: {
               'Content-Type': 'application/json'
             }
