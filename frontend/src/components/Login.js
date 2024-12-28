@@ -17,8 +17,8 @@ const Login = () => {
         signInFlow: 'popup',
         callbacks: {
             signInSuccessWithAuthResult: (authResult,redirectUrl) => {
-                console.log("Authentication successful", authResult);
-            console.log("Redirect URL:", redirectUrl);
+                // console.log("Authentication successful", authResult);
+            // console.log("Redirect URL:", redirectUrl);
                 return true; // Return true to redirect
             }
         }
