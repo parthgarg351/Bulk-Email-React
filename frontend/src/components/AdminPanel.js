@@ -2,8 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { getAuth } from "firebase/auth";
 import Header from "./Header";
-import { FiRefreshCw } from 'react-icons/fi';
-
+import { FiRefreshCw } from "react-icons/fi";
 
 const AdminPanel = () => {
   const [newUserEmail, setNewUserEmail] = useState("");
@@ -77,11 +76,14 @@ const AdminPanel = () => {
       return;
     }
     try {
-    //   await axios.post("http://localhost:5000/toggle-admin", {
-          await axios.post("https://bulk-email-backend-dx5l.onrender.com/toggle-admin", {
-        currentAdminEmail: auth.currentUser.email,
-        targetUserEmail: userEmail,
-      });
+      //   await axios.post("http://localhost:5000/toggle-admin", {
+      await axios.post(
+        "https://bulk-email-backend-dx5l.onrender.com/toggle-admin",
+        {
+          currentAdminEmail: auth.currentUser.email,
+          targetUserEmail: userEmail,
+        }
+      );
       setMessage("Admin status updated successfully");
       fetchAuthorizedUsers();
     } catch (error) {
@@ -97,14 +99,14 @@ const AdminPanel = () => {
           <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
             <h2 className="text-2xl font-bold mb-6">Grant Access</h2>
             <div className="space-y-4">
-              <input 
-                type="email" 
+              <input
+                type="email"
                 value={newUserEmail}
                 onChange={(e) => setNewUserEmail(e.target.value)}
                 placeholder="Enter user email"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
               />
-              <button 
+              <button
                 onClick={grantAccess}
                 className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors"
               >
@@ -112,16 +114,29 @@ const AdminPanel = () => {
               </button>
             </div>
           </div>
+          {message && (
+            <div
+              className={`mt-4 p-4 rounded-md ${
+                message.includes("Error")
+                  ? "bg-red-100 text-red-700"
+                  : "bg-green-100 text-green-700"
+              }`}
+            >
+              {message}
+            </div>
+          )}
 
           <div className="bg-white rounded-lg shadow-lg p-8">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold">Authorized Users</h2>
-              <button 
+              <button
                 onClick={fetchAuthorizedUsers}
                 className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
                 disabled={isRefreshing}
               >
-                <FiRefreshCw className={`w-5 h-5 ${isRefreshing ? 'animate-spin' : ''}`} />
+                <FiRefreshCw
+                  className={`w-5 h-5 ${isRefreshing ? "animate-spin" : ""}`}
+                />
                 Refresh
               </button>
             </div>
@@ -133,23 +148,26 @@ const AdminPanel = () => {
             ) : (
               <div className="space-y-4">
                 {authorizedUsers.map((user) => (
-                  <div key={user.email} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors">
+                  <div
+                    key={user.email}
+                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+                  >
                     <div>
                       <p className="font-medium">{user.email}</p>
                       <p className="text-sm text-gray-500">
-                        {user.isAdmin ? 'Admin' : 'User'}
+                        {user.isAdmin ? "Admin" : "User"}
                       </p>
                     </div>
-                    {user.email !== 'parthgarg351@gmail.com' && (
+                    {user.email !== "parthgarg351@gmail.com" && (
                       <button
                         onClick={() => toggleAdminStatus(user.email)}
                         className={`px-4 py-2 rounded-md transition-colors ${
-                          user.isAdmin 
-                            ? 'bg-red-600 hover:bg-red-700' 
-                            : 'bg-green-600 hover:bg-green-700'
+                          user.isAdmin
+                            ? "bg-red-600 hover:bg-red-700"
+                            : "bg-green-600 hover:bg-green-700"
                         } text-white`}
                       >
-                        {user.isAdmin ? 'Remove Admin' : 'Make Admin'}
+                        {user.isAdmin ? "Remove Admin" : "Make Admin"}
                       </button>
                     )}
                   </div>
@@ -157,14 +175,6 @@ const AdminPanel = () => {
               </div>
             )}
           </div>
-
-          {message && (
-            <div className={`mt-4 p-4 rounded-md ${
-              message.includes('Error') ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'
-            }`}>
-              {message}
-            </div>
-          )}
         </div>
       </div>
     </div>
