@@ -12,7 +12,7 @@ const Body = () => {
   const [emails, setEmails] = useState([]);
   const [validEmails, setValidEmails] = useState([]);
   const [invalidEmails, setInvalidEmails] = useState([]);
-  const [response, setResponse] = useState();
+  //const [response, setResponse] = useState();
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
   let valid = [];
@@ -39,7 +39,7 @@ const Body = () => {
           body: body,
         }
       );
-      setResponse(res.data.processedData); // Update the state with the processed data
+      //setResponse(res.data.processedData); // Update the state with the processed data
     } catch (error) {
       console.error("Error:", error);
     }

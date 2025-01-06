@@ -67,6 +67,12 @@ const Header = () => {
               Bulk Email Sender
             </span>
           </div>
+          <Link
+  to="/lists"
+  className="text-white hover:text-blue-200 transition-colors font-medium mr-4"
+>
+  Lists
+</Link>
 
           {userData && (
             <div className="flex items-center space-x-4">
