@@ -5,6 +5,11 @@ const multer = require("multer");
 const admin = require("firebase-admin");
 require("dotenv").config();
 const EmailList = require("./models/EmailList");
+const connectDB = require('./config/db');
+
+// Connect to MongoDB
+connectDB();
+
 
 // Initialize Firebase Admin
 // const serviceAccount = require('./config/bulk-email-5c174-firebase-adminsdk-l7wjc-2abd0cd92d.json');
