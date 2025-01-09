@@ -50,14 +50,6 @@ function extractNameFromEmail(email) {
   return nameParts.join(" ");
 }
 
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
-
 // Toggle admin status
 app.post("/toggle-admin", async (req, res) => {
   const { currentAdminEmail, targetUserEmail } = req.body;
@@ -148,14 +140,22 @@ app.post("/grant-access", async (req, res) => {
 });
 
 app.post("/send-emails", async (req, res) => {
-  //Data Collection Part
-  const { valid, subject, body } = req.body;
+  const { valid, subject, body,senderEmail,appPassword } = req.body;
   // console.log(req.body);
+  console.log("Sender email = ", senderEmail);
+  // console.log("Password - ", appPassword);
   console.log(valid);
   console.log("Subject = ", subject);
   console.log("Body - ", body);
   //processing part
   //const processedData = data.toUpperCase(); // Example: convert to uppercase
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: senderEmail || process.env.EMAIL_USER,
+      pass: appPassword || process.env.EMAIL_PASS,
+    },
+  });
   for (const email of valid) {
     const name = extractNameFromEmail(email);
     const personalizedSubject = `Hello ${name}, ${subject}`;
@@ -163,7 +163,8 @@ app.post("/send-emails", async (req, res) => {
 
     try {
       await transporter.sendMail({
-        from: process.env.EMAIL_USER,
+        // from: process.env.EMAIL_USER,
+        from: senderEmail ,
         to: email,
         subject: personalizedSubject,
         text: personalizedMessage,

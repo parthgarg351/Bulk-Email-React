@@ -8,6 +8,7 @@ import AdminRoute from './components/AdminRoute';
 import AdminPanel from './components/AdminPanel';
 import Lists from './components/Lists';
 import ProtectedRoute from './components/ProtectedRoute';
+import EmailSettings from './components/EmailSetting';
 
 function App() {
   const appRouter = createBrowserRouter([
@@ -38,6 +39,10 @@ function App() {
     {
       path: "/admin",
       element: <ProtectedRoute><AdminRoute><AdminPanel /></AdminRoute></ProtectedRoute>
+    },
+    {
+      path: "/email-settings",
+      element: <ProtectedRoute><EmailSettings /></ProtectedRoute>
     }
   ])
 

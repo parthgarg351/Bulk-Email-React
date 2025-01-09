@@ -15,6 +15,11 @@ const emailListSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now
+  },
+  senderEmail: {
+    type: String,
+    required: true,
+    verified: Boolean
   }
 });
 

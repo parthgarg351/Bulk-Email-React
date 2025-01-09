@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import axios from "axios";
 import * as XLSX from "xlsx";
 
-
 function validateEmail(email) {
   const regex = /^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/;
   return regex.test(email);
@@ -15,6 +14,8 @@ const Body = () => {
   //const [response, setResponse] = useState();
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
+  const [senderEmail, setSenderEmail] = useState("");
+  const [appPassword, setAppPassword] = useState("");
   let valid = [];
   let invalid = [];
 
@@ -31,12 +32,14 @@ const Body = () => {
     try {
       // Send data to the backend
       const res = await axios.post(
-          "https://bulk-email-backend-dx5l.onrender.com/send-emails",
+        "https://bulk-email-backend-dx5l.onrender.com/send-emails",
         // "http://localhost:5000/send-emails",
         {
           valid,
           subject,
           body: body,
+          senderEmail,
+          appPassword,
         }
       );
       //setResponse(res.data.processedData); // Update the state with the processed data
@@ -47,15 +50,45 @@ const Body = () => {
 
   return (
     <div className="min-h-screen main-animated-gradient">
-
-      
       <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-        <h1 className="text-3xl font-bold text-center text-gray-900 mb-8">Bulk Email Sender</h1>
-        
+        <h1 className="text-3xl font-bold text-center text-gray-900 mb-8">
+          Bulk Email Sender
+        </h1>
+
         <div className="bg-white shadow rounded-lg p-6 mb-8">
           <div className="space-y-6">
+            
+            <div className="bg-white p-6 rounded-lg shadow-md">
+              <h2 className="text-xl font-bold mb-4">Sender Credentials</h2>
+              {/* <form onSubmit={handleSubmit}> */}
+              <div className="mb-4">
+                <label className="block text-gray-700 mb-2">Sender Email</label>
+                <input
+                  type="email"
+                  value={senderEmail}
+                  onChange={(e) => setSenderEmail(e.target.value)}
+                  className="w-full p-2 border rounded"
+                  required
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-gray-700 mb-2">App Password</label>
+                <input
+                  type="password"
+                  value={appPassword}
+                  onChange={(e) => setAppPassword(e.target.value)}
+                  className="w-full p-2 border rounded"
+                  required
+                />
+              </div>
+
+              {/* </form> */}
+            </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="subject">
+              <label
+                className="block text-sm font-medium text-gray-700 mb-2"
+                htmlFor="subject"
+              >
                 Subject
               </label>
               <input
@@ -69,7 +102,10 @@ const Body = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="message">
+              <label
+                className="block text-sm font-medium text-gray-700 mb-2"
+                htmlFor="message"
+              >
                 Body
               </label>
               <textarea
@@ -83,7 +119,10 @@ const Body = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="emailFile">
+              <label
+                className="block text-sm font-medium text-gray-700 mb-2"
+                htmlFor="emailFile"
+              >
                 Upload Excel File
               </label>
               <input
@@ -119,29 +158,37 @@ const Body = () => {
         </div>
 
         <div className="bg-white shadow rounded-lg p-6">
-          <h2 className="text-2xl font-bold text-center text-gray-900 mb-6">Status</h2>
+          <h2 className="text-2xl font-bold text-center text-gray-900 mb-6">
+            Status
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="border rounded-lg p-4">
               <h3 className="font-medium text-gray-900 mb-4">Valid Emails</h3>
               <ul className="space-y-2">
-                {validEmails.length > 0 ? 
+                {validEmails.length > 0 ? (
                   validEmails.map((email, index) => (
-                    <li key={index} className="text-gray-600">{email}</li>
-                  )) : 
+                    <li key={index} className="text-gray-600">
+                      {email}
+                    </li>
+                  ))
+                ) : (
                   <li className="text-gray-500">No valid emails found</li>
-                }
+                )}
               </ul>
             </div>
 
             <div className="border rounded-lg p-4">
               <h3 className="font-medium text-gray-900 mb-4">Invalid Emails</h3>
               <ul className="space-y-2">
-                {invalidEmails.length > 0 ? 
+                {invalidEmails.length > 0 ? (
                   invalidEmails.map((email, index) => (
-                    <li key={index} className="text-gray-600">{email}</li>
-                  )) : 
+                    <li key={index} className="text-gray-600">
+                      {email}
+                    </li>
+                  ))
+                ) : (
                   <li className="text-gray-500">No invalid emails found</li>
-                }
+                )}
               </ul>
             </div>
 

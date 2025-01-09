@@ -32,9 +32,6 @@ const Lists = () => {
     }
   };
 
-
-
-
   const handleAddEmail = async (listId) => {
     if (newEmail.trim()) {
       await axios.post(`https://bulk-email-backend-dx5l.onrender.com/api/lists/${listId}/emails`, { emails: [newEmail] });
@@ -64,7 +61,6 @@ const Lists = () => {
         .map(row => row[0])
         .filter(email => email);
       
-
       await axios.post(`https://bulk-email-backend-dx5l.onrender.com/api/lists/${listId}/emails`, { emails });
       fetchLists();
     };
@@ -72,29 +68,6 @@ const Lists = () => {
   };
 
   return (
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     <div className="min-h-screen main-animated-gradient">
       <Header />
       <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
@@ -118,14 +91,8 @@ const Lists = () => {
               </button>
             </div>
           </div>
-
-
-
-
-
-
-
-
+        </div>
+        <div className="bg-white rounded-lg shadow-xl p-6 my-5">
           {/* Lists Display Section */}
           <div className="space-y-6">
             {lists.map(list => (
@@ -149,7 +116,6 @@ const Lists = () => {
                       Delete List
                     </button>
                   </div>
-
                 </div>
 
                 {expandedLists[list._id] && (
@@ -211,29 +177,14 @@ const Lists = () => {
                   </div>
                 )}
               </div>
-
-
-
-
-
-
-
-
             ))}
           </div>
-
         </div>
       </div>
 
       {/* Delete Confirmation Modal */}
       {showDeleteModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-
-
-
-
-
-
           <div className="bg-white p-6 rounded-lg max-w-sm w-full mx-4">
             <h3 className="text-xl font-bold mb-4">Delete List?</h3>
             <p className="text-gray-600 mb-6">
