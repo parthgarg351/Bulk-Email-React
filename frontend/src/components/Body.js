@@ -17,6 +17,9 @@ const Body = () => {
   const [senderEmail, setSenderEmail] = useState("");
   const [appPassword, setAppPassword] = useState("");
   const [attachments, setAttachments] = useState([]);
+  const [isSending, setIsSending] = useState(false);
+  const [currentEmail, setCurrentEmail] = useState("");
+  const [progress, setProgress] = useState(0);
 
   const handleAttachmentChange = (e) => {
     const files = Array.from(e.target.files);
@@ -33,7 +36,9 @@ const Body = () => {
 
     setValidRecipients(valid);
     setInvalidRecipients(invalid);
-
+    setIsSending(true);
+    setProgress(0);
+    let eventSource;
     try {
       const formData = new FormData();
       formData.append("valid", JSON.stringify(valid));
@@ -46,13 +51,36 @@ const Body = () => {
         formData.append("attachments", file);
       });
 
+      // Calculate progress increment per email
+      const progressIncrement = 100 / valid.length;
+
+      // Subscribe to progress events
+      eventSource = new EventSource(`${API_ENDPOINTS.SEND_EMAILS}/progress`);
+      eventSource.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        setCurrentEmail(data.email);
+        setProgress((prev) => prev + progressIncrement);
+      };
+
       await axios.post(API_ENDPOINTS.SEND_EMAILS, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
+      eventSource.close();
+      setProgress(100);
+
+      setTimeout(() => {
+        setIsSending(false);
+        setCurrentEmail("");
+        setProgress(0);
+      }, 5000);
     } catch (error) {
       console.error("Error:", error);
+      eventSource?.close();
+      setIsSending(false);
+      setCurrentEmail("");
+      setProgress(0);
     }
   };
 
@@ -193,7 +221,33 @@ const Body = () => {
             </button>
           </div>
         </div>
-
+        {isSending && (
+          <div className="bg-white shadow rounded-lg p-6 mb-8">
+            <div className="text-center mb-4">
+              <h3 className="text-lg font-medium text-gray-900">
+                Sending Emails...
+              </h3>
+              {currentEmail && (
+                <p className="text-sm text-gray-600 mt-2">
+                  Sending email to: {currentEmail}
+                </p>
+              )}
+            </div>
+            <div className="relative pt-1">
+              <div className="overflow-hidden h-2 mb-4 text-xs flex rounded bg-gray-200">
+                <div
+                  style={{ width: `${progress}%` }}
+                  className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-gradient-to-r from-blue-500 to-indigo-600 transition-all duration-500 ease-out"
+                />
+              </div>
+              <div className="text-right">
+                <span className="text-sm font-semibold inline-block text-blue-600">
+                  {Math.round(progress)}%
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
         <div className="bg-white shadow rounded-lg p-6">
           <h2 className="text-2xl font-bold text-center text-gray-900 mb-6">
             Status

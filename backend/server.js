@@ -5,11 +5,10 @@ const multer = require("multer");
 const admin = require("firebase-admin");
 require("dotenv").config();
 const EmailList = require("./models/EmailList");
-const connectDB = require('./config/db');
+const connectDB = require("./config/db");
 
 // Connect to MongoDB
 connectDB();
-
 
 // Initialize Firebase Admin
 // const serviceAccount = require('./config/bulk-email-5c174-firebase-adminsdk-l7wjc-2abd0cd92d.json');
@@ -40,7 +39,8 @@ const upload = multer();
 
 app.use(cors());
 app.use(express.json());
-console.log(process.env.EMAIL_USER);
+// console.log(process.env.EMAIL_USER);
+let emailProgress = new Map();
 
 function extractNameFromEmail(email) {
   const localPart = email.split("@")[0];
@@ -139,9 +139,23 @@ app.post("/grant-access", async (req, res) => {
   }
 });
 
-app.post("/send-emails", upload.array('attachments'), async (req, res) => {
+app.get("/send-emails/progress", (req, res) => {
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
+
+  const clientId = Date.now();
+  emailProgress.set(clientId, res);
+
+  req.on("close", () => {
+    emailProgress.delete(clientId);
+  });
+});
+
+app.post("/send-emails", upload.array("attachments"), async (req, res) => {
   const { valid, subject, body, senderEmail, appPassword } = req.body;
-  const files = req.files;
+  const files = req.files; 
+  let hasResponded = false;
   console.log("Subject = ", subject);
   console.log("Body = ", body);
   console.log("Sender Email = ", senderEmail);
@@ -165,18 +179,30 @@ app.post("/send-emails", upload.array('attachments'), async (req, res) => {
         to: recipient.email,
         subject: personalizedSubject,
         text: personalizedMessage,
-        attachments: files ? files.map(file => ({
-          filename: file.originalname,
-          content: file.buffer
-        })) : []
+        attachments: files
+          ? files.map((file) => ({
+              filename: file.originalname,
+              content: file.buffer,
+            }))
+          : [],
       });
       console.log(`Email sent to: ${recipient.email}`);
+      // Send progress to all connected clients
+      emailProgress.forEach((client) => {
+        client.write(`data: ${JSON.stringify({ email: recipient.email })}\n\n`);
+      });
     } catch (error) {
       console.error(`Failed to send email to ${recipient.email}:`, error);
+      if (!hasResponded) {
+        hasResponded = true;
+        return res.status(500).json({ error: error.message });
+      }
     }
   }
   
-  res.json({ message: "Emails sent successfully" });
+  if (!hasResponded) {
+    res.json({ success: true });
+  }
 });
 
 app.post("/revoke-access", async (req, res) => {
