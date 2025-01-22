@@ -12,35 +12,46 @@ const Body = () => {
   const [recipients, setRecipients] = useState([]);
   const [validRecipients, setValidRecipients] = useState([]);
   const [invalidRecipients, setInvalidRecipients] = useState([]);
-  //const [response, setResponse] = useState();
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
   const [senderEmail, setSenderEmail] = useState("");
   const [appPassword, setAppPassword] = useState("");
+  const [attachments, setAttachments] = useState([]);
+
+  const handleAttachmentChange = (e) => {
+    const files = Array.from(e.target.files);
+    setAttachments(files);
+  };
+
   const handleSendEmails = async () => {
-    const valid = recipients.filter((recipient) =>
-      validateEmail(recipient.email)
-    );
-    const invalid = recipients.filter(
-      (recipient) => !validateEmail(recipient.email)
-    );
+    const valid = recipients.filter((recipient) => validateEmail(recipient.email));
+    const invalid = recipients.filter((recipient) => !validateEmail(recipient.email));
 
     setValidRecipients(valid);
     setInvalidRecipients(invalid);
+
     try {
-      // Send data to the backend
-      const res = await axios.post(API_ENDPOINTS.SEND_EMAILS, {
-        valid,
-        subject,
-        body,
-        senderEmail,
-        appPassword,
+      const formData = new FormData();
+      formData.append('valid', JSON.stringify(valid));
+      formData.append('subject', subject);
+      formData.append('body', body);
+      formData.append('senderEmail', senderEmail);
+      formData.append('appPassword', appPassword);
+      
+      attachments.forEach(file => {
+        formData.append('attachments', file);
       });
-      //setResponse(res.data.processedData); // Update the state with the processed data
+
+      await axios.post(API_ENDPOINTS.SEND_EMAILS, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
     } catch (error) {
       console.error("Error:", error);
     }
   };
+
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
     const reader = new FileReader();
@@ -73,7 +84,6 @@ const Body = () => {
           <div className="space-y-6">
             <div className="bg-white p-6 rounded-lg shadow-md">
               <h2 className="text-xl font-bold mb-4">Sender Credentials</h2>
-              {/* <form onSubmit={handleSubmit}> */}
               <div className="mb-4">
                 <label className="block text-gray-700 mb-2">Sender Email</label>
                 <input
@@ -94,19 +104,14 @@ const Body = () => {
                   required
                 />
               </div>
-
-              {/* </form> */}
             </div>
+
             <div>
-              <label
-                className="block text-sm font-medium text-gray-700 mb-2"
-                htmlFor="subject"
-              >
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Subject
               </label>
               <input
                 type="text"
-                id="subject"
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
@@ -115,14 +120,10 @@ const Body = () => {
             </div>
 
             <div>
-              <label
-                className="block text-sm font-medium text-gray-700 mb-2"
-                htmlFor="message"
-              >
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Body
               </label>
               <textarea
-                id="message"
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                 rows="6"
                 value={body}
@@ -136,13 +137,34 @@ const Body = () => {
                 Upload Excel File (<span className="font-bold">Name</span> and{" "}
                 <span className="font-bold">Email</span> columns)
               </label>
-
               <input
                 type="file"
                 accept=".xlsx"
                 onChange={handleFileUpload}
                 className="w-full px-4 py-2 border border-gray-300 rounded-md"
               />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Attachments
+              </label>
+              <input
+                type="file"
+                multiple
+                onChange={handleAttachmentChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded-md"
+              />
+              {attachments.length > 0 && (
+                <div className="mt-2">
+                  <p className="text-sm text-gray-600">Selected files:</p>
+                  <ul className="list-disc pl-5">
+                    {attachments.map((file, index) => (
+                      <li key={index} className="text-sm text-gray-600">{file.name}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
 
             <button
@@ -160,9 +182,7 @@ const Body = () => {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="border rounded-lg p-4">
-              <h3 className="font-medium text-gray-900 mb-4">
-                Valid Recipients
-              </h3>
+              <h3 className="font-medium text-gray-900 mb-4">Valid Recipients</h3>
               <ul className="space-y-2">
                 {validRecipients.length > 0 ? (
                   validRecipients.map((recipient, index) => (
@@ -177,9 +197,7 @@ const Body = () => {
             </div>
 
             <div className="border rounded-lg p-4">
-              <h3 className="font-medium text-gray-900 mb-4">
-                Invalid Recipients
-              </h3>
+              <h3 className="font-medium text-gray-900 mb-4">Invalid Recipients</h3>
               <ul className="space-y-2">
                 {invalidRecipients.length > 0 ? (
                   invalidRecipients.map((recipient, index) => (

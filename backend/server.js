@@ -139,16 +139,13 @@ app.post("/grant-access", async (req, res) => {
   }
 });
 
-app.post("/send-emails", async (req, res) => {
-  const { valid, subject, body,senderEmail,appPassword } = req.body;
-  // console.log(req.body);
-  console.log("Sender email = ", senderEmail);
-  // console.log("Password - ", appPassword);
-  console.log(valid);
+app.post("/send-emails", upload.array('attachments'), async (req, res) => {
+  const { valid, subject, body, senderEmail, appPassword } = req.body;
+  const files = req.files;
   console.log("Subject = ", subject);
-  console.log("Body - ", body);
-  //processing part
-  //const processedData = data.toUpperCase(); // Example: convert to uppercase
+  console.log("Body = ", body);
+  console.log("Sender Email = ", senderEmail);
+
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -156,27 +153,30 @@ app.post("/send-emails", async (req, res) => {
       pass: appPassword || process.env.EMAIL_PASS,
     },
   });
-  for (const recipient of valid) {
+
+  for (const recipient of JSON.parse(valid)) {
     const name = recipient.name || extractNameFromEmail(recipient.email);
     const personalizedSubject = subject.replace(/{name}/g, name);
     const personalizedMessage = body.replace(/{name}/g, name);
 
     try {
       await transporter.sendMail({
-        // from: process.env.EMAIL_USER,
-        from: senderEmail ,
+        from: senderEmail,
         to: recipient.email,
         subject: personalizedSubject,
         text: personalizedMessage,
-        //attachments: attachments, // Attachments array
+        attachments: files ? files.map(file => ({
+          filename: file.originalname,
+          content: file.buffer
+        })) : []
       });
       console.log(`Email sent to: ${recipient.email}`);
     } catch (error) {
       console.error(`Failed to send email to ${recipient.email}:`, error);
     }
   }
-  //response part
-  //res.json({ processedData }); // Send back to frontend
+  
+  res.json({ message: "Emails sent successfully" });
 });
 
 app.post("/revoke-access", async (req, res) => {
