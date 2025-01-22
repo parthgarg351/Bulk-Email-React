@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import * as XLSX from "xlsx";
+import { API_ENDPOINTS } from "../utils/constants.js";
 
 function validateEmail(email) {
   const regex = /^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/;
@@ -8,44 +9,57 @@ function validateEmail(email) {
 }
 
 const Body = () => {
-  const [emails, setEmails] = useState([]);
-  const [validEmails, setValidEmails] = useState([]);
-  const [invalidEmails, setInvalidEmails] = useState([]);
+  const [recipients, setRecipients] = useState([]);
+  const [validRecipients, setValidRecipients] = useState([]);
+  const [invalidRecipients, setInvalidRecipients] = useState([]);
   //const [response, setResponse] = useState();
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
   const [senderEmail, setSenderEmail] = useState("");
   const [appPassword, setAppPassword] = useState("");
-  let valid = [];
-  let invalid = [];
-
   const handleSendEmails = async () => {
-    emails.forEach((email, index) => {
-      if (validateEmail(email)) {
-        valid.push(email);
-      } else {
-        invalid.push(email);
-      }
-    });
-    setValidEmails(valid);
-    setInvalidEmails(invalid);
+    const valid = recipients.filter((recipient) =>
+      validateEmail(recipient.email)
+    );
+    const invalid = recipients.filter(
+      (recipient) => !validateEmail(recipient.email)
+    );
+
+    setValidRecipients(valid);
+    setInvalidRecipients(invalid);
     try {
       // Send data to the backend
-      const res = await axios.post(
-        "https://bulk-email-backend-dx5l.onrender.com/send-emails",
-        // "http://localhost:5000/send-emails",
-        {
-          valid,
-          subject,
-          body: body,
-          senderEmail,
-          appPassword,
-        }
-      );
+      const res = await axios.post(API_ENDPOINTS.SEND_EMAILS, {
+        valid,
+        subject,
+        body,
+        senderEmail,
+        appPassword,
+      });
       //setResponse(res.data.processedData); // Update the state with the processed data
     } catch (error) {
       console.error("Error:", error);
     }
+  };
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      const data = reader.result;
+      const workbook = XLSX.read(data, { type: "binary" });
+      const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+      const jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+      const processedRecipients = jsonData.map((row) => ({
+        name: row.Name || row.name || row["Full Name"] || "",
+        email: row.Email || row.email || row["Email Address"] || "",
+      }));
+
+      setRecipients(processedRecipients);
+    };
+
+    reader.readAsBinaryString(file);
   };
 
   return (
@@ -57,7 +71,6 @@ const Body = () => {
 
         <div className="bg-white shadow rounded-lg p-6 mb-8">
           <div className="space-y-6">
-            
             <div className="bg-white p-6 rounded-lg shadow-md">
               <h2 className="text-xl font-bold mb-4">Sender Credentials</h2>
               {/* <form onSubmit={handleSubmit}> */}
@@ -97,7 +110,7 @@ const Body = () => {
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
-                placeholder="Enter email subject"
+                placeholder="Subject (Use {name} for personalization)"
               />
             </div>
 
@@ -114,37 +127,21 @@ const Body = () => {
                 rows="6"
                 value={body}
                 onChange={(e) => setBody(e.target.value)}
-                placeholder="Enter email body"
+                placeholder="Email body (Use {name} for personalization)"
               />
             </div>
 
             <div>
-              <label
-                className="block text-sm font-medium text-gray-700 mb-2"
-                htmlFor="emailFile"
-              >
-                Upload Excel File
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Upload Excel File (<span className="font-bold">Name</span> and{" "}
+                <span className="font-bold">Email</span> columns)
               </label>
+
               <input
                 type="file"
-                id="emailFile"
                 accept=".xlsx"
-                onChange={(e) => {
-                  const file = e.target.files[0];
-                  const reader = new FileReader();
-                  reader.onload = () => {
-                    const data = reader.result;
-                    const workbook = XLSX.read(data, { type: "binary" });
-                    const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-                    const emailsFromFile = XLSX.utils.sheet_to_json(worksheet, {
-                      header: 1,
-                      raw: true,
-                    });
-                    setEmails(emailsFromFile.map((row) => row[0]));
-                  };
-                  reader.readAsBinaryString(file);
-                }}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                onChange={handleFileUpload}
+                className="w-full px-4 py-2 border border-gray-300 rounded-md"
               />
             </div>
 
@@ -163,31 +160,35 @@ const Body = () => {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="border rounded-lg p-4">
-              <h3 className="font-medium text-gray-900 mb-4">Valid Emails</h3>
+              <h3 className="font-medium text-gray-900 mb-4">
+                Valid Recipients
+              </h3>
               <ul className="space-y-2">
-                {validEmails.length > 0 ? (
-                  validEmails.map((email, index) => (
+                {validRecipients.length > 0 ? (
+                  validRecipients.map((recipient, index) => (
                     <li key={index} className="text-gray-600">
-                      {email}
+                      {recipient.name} ({recipient.email})
                     </li>
                   ))
                 ) : (
-                  <li className="text-gray-500">No valid emails found</li>
+                  <li className="text-gray-500">No valid recipients found</li>
                 )}
               </ul>
             </div>
 
             <div className="border rounded-lg p-4">
-              <h3 className="font-medium text-gray-900 mb-4">Invalid Emails</h3>
+              <h3 className="font-medium text-gray-900 mb-4">
+                Invalid Recipients
+              </h3>
               <ul className="space-y-2">
-                {invalidEmails.length > 0 ? (
-                  invalidEmails.map((email, index) => (
+                {invalidRecipients.length > 0 ? (
+                  invalidRecipients.map((recipient, index) => (
                     <li key={index} className="text-gray-600">
-                      {email}
+                      {recipient.name} ({recipient.email})
                     </li>
                   ))
                 ) : (
-                  <li className="text-gray-500">No invalid emails found</li>
+                  <li className="text-gray-500">No invalid recipients found</li>
                 )}
               </ul>
             </div>

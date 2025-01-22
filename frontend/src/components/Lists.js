@@ -1,16 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import { getAuth } from 'firebase/auth';
-import axios from 'axios';
-import * as XLSX from 'xlsx';
-import Header from './Header';
+import React, { useState, useEffect } from "react";
+import { getAuth } from "firebase/auth";
+import axios from "axios";
+import * as XLSX from "xlsx";
+import Header from "./Header";
+import { API_ENDPOINTS } from "../utils/constants";
 
 const Lists = () => {
   const [lists, setLists] = useState([]);
   const [expandedLists, setExpandedLists] = useState({});
-  const [newListName, setNewListName] = useState('');
+  const [newListName, setNewListName] = useState("");
   const [selectedList, setSelectedList] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [newEmail, setNewEmail] = useState('');
+  const [newEmail, setNewEmail] = useState("");
   const auth = getAuth();
 
   useEffect(() => {
@@ -19,34 +20,41 @@ const Lists = () => {
 
   const fetchLists = async () => {
     const userId = auth.currentUser.uid;
-    const response = await axios.get(`https://bulk-email-backend-dx5l.onrender.com/api/lists/${userId}`);
+    const response = await axios.get(`${API_ENDPOINTS.EMAIL_LISTS}/${userId}`);
     setLists(response.data);
   };
 
   const handleCreateList = async () => {
     if (newListName.trim()) {
       const userId = auth.currentUser.uid;
-      await axios.post('https://bulk-email-backend-dx5l.onrender.com/api/lists', { userId, listName: newListName });
+      await axios.post(API_ENDPOINTS.EMAIL_LISTS, {
+        userId,
+        listName: newListName,
+      });
       fetchLists();
-      setNewListName('');
+      setNewListName("");
     }
   };
 
   const handleAddEmail = async (listId) => {
     if (newEmail.trim()) {
-      await axios.post(`https://bulk-email-backend-dx5l.onrender.com/api/lists/${listId}/emails`, { emails: [newEmail] });
+      await axios.post(`${API_ENDPOINTS.EMAIL_LISTS}/${listId}/emails`, {
+        emails: [newEmail],
+      });
       fetchLists();
-      setNewEmail('');
+      setNewEmail("");
     }
   };
 
   const handleRemoveEmail = async (listId, email) => {
-    await axios.delete(`https://bulk-email-backend-dx5l.onrender.com/api/lists/${listId}/emails/${email}`);
+    await axios.delete(
+      `${API_ENDPOINTS.EMAIL_LISTS}/${listId}/emails/${email}`
+    );
     fetchLists();
   };
 
   const handleDeleteList = async (listId) => {
-    await axios.delete(`https://bulk-email-backend-dx5l.onrender.com/api/lists/${listId}`);
+    await axios.delete(`${API_ENDPOINTS.EMAIL_LISTS}/${listId}`);
     setShowDeleteModal(false);
     fetchLists();
   };
@@ -55,13 +63,16 @@ const Lists = () => {
     const reader = new FileReader();
     reader.onload = async (event) => {
       const data = event.target.result;
-      const workbook = XLSX.read(data, { type: 'binary' });
+      const workbook = XLSX.read(data, { type: "binary" });
       const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-      const emails = XLSX.utils.sheet_to_json(worksheet, { header: 1 })
-        .map(row => row[0])
-        .filter(email => email);
-      
-      await axios.post(`https://bulk-email-backend-dx5l.onrender.com/api/lists/${listId}/emails`, { emails });
+      const emails = XLSX.utils
+        .sheet_to_json(worksheet, { header: 1 })
+        .map((row) => row[0])
+        .filter((email) => email);
+
+      await axios.post(`${API_ENDPOINTS.EMAIL_LISTS}/${listId}/emails`, {
+        emails,
+      });
       fetchLists();
     };
     reader.readAsBinaryString(file);
@@ -95,18 +106,23 @@ const Lists = () => {
         <div className="bg-white rounded-lg shadow-xl p-6 my-5">
           {/* Lists Display Section */}
           <div className="space-y-6">
-            {lists.map(list => (
+            {lists.map((list) => (
               <div key={list._id} className="border rounded-lg p-6">
                 <div className="flex justify-between items-center mb-4">
                   <h3 className="text-xl font-semibold">{list.listName}</h3>
                   <div className="space-x-2">
-                    <button 
-                      onClick={() => setExpandedLists(prev => ({...prev, [list._id]: !prev[list._id]}))}
+                    <button
+                      onClick={() =>
+                        setExpandedLists((prev) => ({
+                          ...prev,
+                          [list._id]: !prev[list._id],
+                        }))
+                      }
                       className="px-4 py-2 text-blue-600 hover:bg-blue-50 rounded-md"
                     >
-                      {expandedLists[list._id] ? 'Collapse' : 'Expand'}
+                      {expandedLists[list._id] ? "Collapse" : "Expand"}
                     </button>
-                    <button 
+                    <button
                       onClick={() => {
                         setSelectedList(list);
                         setShowDeleteModal(true);
@@ -142,7 +158,9 @@ const Lists = () => {
                       <input
                         type="file"
                         accept=".xlsx"
-                        onChange={(e) => handleFileUpload(list._id, e.target.files[0])}
+                        onChange={(e) =>
+                          handleFileUpload(list._id, e.target.files[0])
+                        }
                         className="w-full p-2 border rounded-md"
                       />
                     </div>
@@ -150,7 +168,10 @@ const Lists = () => {
                     {/* Email List */}
                     <div className="bg-gray-50 rounded-md p-4">
                       {list.emails.map((email, index) => (
-                        <div key={index} className="flex justify-between items-center py-2">
+                        <div
+                          key={index}
+                          className="flex justify-between items-center py-2"
+                        >
                           <span>{email}</span>
                           <button
                             onClick={() => handleRemoveEmail(list._id, email)}
@@ -167,7 +188,9 @@ const Lists = () => {
                 {!expandedLists[list._id] && (
                   <div className="mt-2">
                     {list.emails.slice(0, 5).map((email, index) => (
-                      <div key={index} className="text-gray-600">{email}</div>
+                      <div key={index} className="text-gray-600">
+                        {email}
+                      </div>
                     ))}
                     {list.emails.length > 5 && (
                       <div className="text-gray-500 mt-2">
@@ -188,7 +211,8 @@ const Lists = () => {
           <div className="bg-white p-6 rounded-lg max-w-sm w-full mx-4">
             <h3 className="text-xl font-bold mb-4">Delete List?</h3>
             <p className="text-gray-600 mb-6">
-              Are you sure you want to delete {selectedList?.listName}? This action cannot be undone.
+              Are you sure you want to delete {selectedList?.listName}? This
+              action cannot be undone.
             </p>
             <div className="flex justify-end space-x-4">
               <button

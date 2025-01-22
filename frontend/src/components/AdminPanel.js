@@ -3,6 +3,7 @@ import axios from "axios";
 import { getAuth } from "firebase/auth";
 import Header from "./Header";
 import { FiRefreshCw } from "react-icons/fi";
+import { API_ENDPOINTS } from "../utils/constants";
 
 const AdminPanel = () => {
   const [newUserEmail, setNewUserEmail] = useState("");
@@ -16,13 +17,13 @@ const AdminPanel = () => {
   useEffect(() => {
     fetchAuthorizedUsers();
   }, []);
-    
+
   useEffect(() => {
     if (message) {
       const timer = setTimeout(() => {
-        setMessage('');
+        setMessage("");
       }, 7000);
-  
+
       return () => clearTimeout(timer);
     }
   }, [message]);
@@ -30,10 +31,7 @@ const AdminPanel = () => {
   const fetchAuthorizedUsers = async () => {
     setIsRefreshing(true);
     try {
-      const response = await axios.get(
-        // "http://localhost:5000/authorized-users"
-        "https://bulk-email-backend-dx5l.onrender.com/authorized-users"
-      );
+      const response = await axios.get(API_ENDPOINTS.AUTHORIZED_USERS);
       setAuthorizedUsers(response.data.users);
     } catch (error) {
       setMessage(
@@ -57,9 +55,8 @@ const AdminPanel = () => {
       userEmailToGrant: newUserEmail,
     };
     try {
-      // const response = await axios.post('http://localhost:5000/grant-access', requestBody, {
       const response = await axios.post(
-        "https://bulk-email-backend-dx5l.onrender.com/grant-access",
+        API_ENDPOINTS.GRANT_ACCESS,
         requestBody,
         {
           headers: {
@@ -86,14 +83,10 @@ const AdminPanel = () => {
       return;
     }
     try {
-      //   await axios.post("http://localhost:5000/toggle-admin", {
-      await axios.post(
-        "https://bulk-email-backend-dx5l.onrender.com/toggle-admin",
-        {
-          currentAdminEmail: auth.currentUser.email,
-          targetUserEmail: userEmail,
-        }
-      );
+      await axios.post(API_ENDPOINTS.TOGGLE_ADMIN, {
+        currentAdminEmail: auth.currentUser.email,
+        targetUserEmail: userEmail,
+      });
       setMessage("Admin status updated successfully");
       fetchAuthorizedUsers();
     } catch (error) {
@@ -103,8 +96,7 @@ const AdminPanel = () => {
 
   const revokeAccess = async (userEmail) => {
     try {
-    //   await axios.post("http://localhost:5000/revoke-access", {
-      await axios.post("https://bulk-email-backend-dx5l.onrender.com/revoke-access", {
+      await axios.post(API_ENDPOINTS.REVOKE_ACCESS, {
         adminEmail: auth.currentUser.email,
         userEmailToRevoke: userEmail,
       });

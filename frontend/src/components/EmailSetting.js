@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { getAuth } from 'firebase/auth';
 import axios from 'axios';
+import { API_ENDPOINTS } from '../utils/constants';
 
 const EmailSettings = () => {
   const [senderEmail, setSenderEmail] = useState('');
@@ -8,7 +9,7 @@ const EmailSettings = () => {
 
   const handleAddEmail = async () => {
     try {
-      const response = await axios.post('https://bulk-email-backend-dx5l.onrender.com/verify-sender', {
+      const response = await axios.post(API_ENDPOINTS.VERIFY_SENDER, {
         userId: auth.currentUser.uid,
         senderEmail: senderEmail
       });

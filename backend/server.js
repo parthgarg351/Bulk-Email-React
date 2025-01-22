@@ -156,23 +156,23 @@ app.post("/send-emails", async (req, res) => {
       pass: appPassword || process.env.EMAIL_PASS,
     },
   });
-  for (const email of valid) {
-    const name = extractNameFromEmail(email);
-    const personalizedSubject = `Hello ${name}, ${subject}`;
-    const personalizedMessage = `Hi ${name},\n\n${body}`;
+  for (const recipient of valid) {
+    const name = recipient.name || extractNameFromEmail(recipient.email);
+    const personalizedSubject = subject.replace(/{name}/g, name);
+    const personalizedMessage = body.replace(/{name}/g, name);
 
     try {
       await transporter.sendMail({
         // from: process.env.EMAIL_USER,
         from: senderEmail ,
-        to: email,
+        to: recipient.email,
         subject: personalizedSubject,
         text: personalizedMessage,
         //attachments: attachments, // Attachments array
       });
-      console.log(`Email sent to: ${email}`);
+      console.log(`Email sent to: ${recipient.email}`);
     } catch (error) {
-      console.error(`Failed to send email to ${email}:`, error);
+      console.error(`Failed to send email to ${recipient.email}:`, error);
     }
   }
   //response part
