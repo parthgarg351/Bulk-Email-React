@@ -24,28 +24,32 @@ const Body = () => {
   };
 
   const handleSendEmails = async () => {
-    const valid = recipients.filter((recipient) => validateEmail(recipient.email));
-    const invalid = recipients.filter((recipient) => !validateEmail(recipient.email));
+    const valid = recipients.filter((recipient) =>
+      validateEmail(recipient.email)
+    );
+    const invalid = recipients.filter(
+      (recipient) => !validateEmail(recipient.email)
+    );
 
     setValidRecipients(valid);
     setInvalidRecipients(invalid);
 
     try {
       const formData = new FormData();
-      formData.append('valid', JSON.stringify(valid));
-      formData.append('subject', subject);
-      formData.append('body', body);
-      formData.append('senderEmail', senderEmail);
-      formData.append('appPassword', appPassword);
-      
-      attachments.forEach(file => {
-        formData.append('attachments', file);
+      formData.append("valid", JSON.stringify(valid));
+      formData.append("subject", subject);
+      formData.append("body", body);
+      formData.append("senderEmail", senderEmail);
+      formData.append("appPassword", appPassword);
+
+      attachments.forEach((file) => {
+        formData.append("attachments", file);
       });
 
       await axios.post(API_ENDPOINTS.SEND_EMAILS, formData, {
         headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+          "Content-Type": "multipart/form-data",
+        },
       });
     } catch (error) {
       console.error("Error:", error);
@@ -103,6 +107,18 @@ const Body = () => {
                   className="w-full p-2 border rounded"
                   required
                 />
+                <p className="mt-2 text-sm text-gray-600">
+                  To generate an app password: <br />
+                  1. Enable 2-Step Verification in your Google Account <br />
+                  2. Go to "Manage Your Google Account" and search for "App
+                  Passwords" <br />
+                  3. Create a new app password with any name of your choice{" "}
+                  <br />
+                  4. Copy the generated password immediately as it will only be
+                  shown once <br />
+                  5. After using it on our website, you can safely delete this
+                  app password from your Google Account
+                </p>
               </div>
             </div>
 
@@ -160,7 +176,9 @@ const Body = () => {
                   <p className="text-sm text-gray-600">Selected files:</p>
                   <ul className="list-disc pl-5">
                     {attachments.map((file, index) => (
-                      <li key={index} className="text-sm text-gray-600">{file.name}</li>
+                      <li key={index} className="text-sm text-gray-600">
+                        {file.name}
+                      </li>
                     ))}
                   </ul>
                 </div>
@@ -182,7 +200,9 @@ const Body = () => {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="border rounded-lg p-4">
-              <h3 className="font-medium text-gray-900 mb-4">Valid Recipients</h3>
+              <h3 className="font-medium text-gray-900 mb-4">
+                Valid Recipients
+              </h3>
               <ul className="space-y-2">
                 {validRecipients.length > 0 ? (
                   validRecipients.map((recipient, index) => (
@@ -197,7 +217,9 @@ const Body = () => {
             </div>
 
             <div className="border rounded-lg p-4">
-              <h3 className="font-medium text-gray-900 mb-4">Invalid Recipients</h3>
+              <h3 className="font-medium text-gray-900 mb-4">
+                Invalid Recipients
+              </h3>
               <ul className="space-y-2">
                 {invalidRecipients.length > 0 ? (
                   invalidRecipients.map((recipient, index) => (
