@@ -15,7 +15,7 @@ const AdminRoute = ({ children }) => {
       }
       setLoading(false);
     });
-
+ 
     return () => unsubscribe();
   }, []);
 

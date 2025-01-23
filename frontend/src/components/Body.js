@@ -21,6 +21,16 @@ const Body = () => {
   const [currentEmail, setCurrentEmail] = useState("");
   const [progress, setProgress] = useState(0);
 
+  const handleTextAreaChange = (e) => {
+    const textarea = e.target;
+    setBody(e.target.value);
+
+    // Reset height to auto to properly calculate scroll height
+    textarea.style.height = "auto";
+    // Set new height based on content
+    textarea.style.height = `${textarea.scrollHeight}px`;
+  };
+
   const handleAttachmentChange = (e) => {
     const files = Array.from(e.target.files);
     setAttachments(files);
@@ -86,8 +96,19 @@ const Body = () => {
 
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
-    const reader = new FileReader();
 
+    const allowedTypes = [
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // .xlsx
+      "application/vnd.ms-excel", // .xls
+    ];
+
+    if (!allowedTypes.includes(file?.type)) {
+      alert("Please upload only Excel files (.xlsx or .xls)");
+      e.target.value = ""; // Clear the input
+      return;
+    }
+
+    const reader = new FileReader();
     reader.onload = () => {
       const data = reader.result;
       const workbook = XLSX.read(data, { type: "binary" });
@@ -168,11 +189,12 @@ const Body = () => {
                 Body
               </label>
               <textarea
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                rows="6"
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 min-h-[72px]" // min-h-[72px] gives approximately 3 lines
+                rows="3"
                 value={body}
-                onChange={(e) => setBody(e.target.value)}
+                onChange={handleTextAreaChange}
                 placeholder="Email body (Use {name} for personalization)"
+                style={{ resize: "none", overflow: "hidden" }}
               />
             </div>
 
@@ -215,9 +237,14 @@ const Body = () => {
 
             <button
               onClick={handleSendEmails}
-              className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              disabled={isSending}
+              className={`w-full py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                isSending
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-blue-600 hover:bg-blue-700 text-white"
+              }`}
             >
-              Send Emails
+              {isSending ? "Sending..." : "Send Emails"}
             </button>
           </div>
         </div>
@@ -294,6 +321,26 @@ const Body = () => {
               </ul>
             </div>
           </div>
+        </div>
+        <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
+          <p className="text-gray-700 text-lg leading-relaxed">
+            Please note: This application uses Render's free tier services,
+            which may require a 10-second initialization period during the first
+            interaction due to automatic shutdown after inactivity.
+            <br />
+            <br />
+            The user interface is currently under development and will be
+            enhanced in future updates.
+            <br />
+            <br />
+            Your feedback is valuable! Feel free to share your thoughts at{" "}
+            <a
+              href="mailto:parthgarg351@gmail.com"
+              className="text-blue-600 hover:text-blue-800 underline"
+            >
+              parthgarg351@gmail.com
+            </a>
+          </p>
         </div>
       </div>
     </div>

@@ -25,7 +25,7 @@ const ProtectedRoute = ({ children }) => {
     </div>;
   }
 
-  return isAuthorized ? children : <Navigate to="/" />;
+  return isAuthorized ? children : <Navigate to="/unauthorized" />;
 };
 
 export default ProtectedRoute;
