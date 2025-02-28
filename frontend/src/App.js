@@ -18,7 +18,8 @@ function App() {
     },
     {
       path: "/home",
-      element:<ProtectedRoute><Home/></ProtectedRoute>
+      // element:<ProtectedRoute><Home/></ProtectedRoute>
+      element:<Home/>
     },
     {
       path: "/terms",
@@ -38,7 +39,8 @@ function App() {
     },
     {
       path: "/admin",
-      element: <ProtectedRoute><AdminRoute><AdminPanel /></AdminRoute></ProtectedRoute>
+      // element: <ProtectedRoute><AdminRoute><AdminPanel /></AdminRoute></ProtectedRoute>
+      element:<AdminPanel/>
     },
     {
       path: "/email-settings",
